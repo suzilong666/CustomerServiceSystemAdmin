@@ -1,160 +1,101 @@
 import type {
+  ComponentRenderProxy,
   VNode,
+  VNodeChild,
+  ComponentPublicInstance,
   FunctionalComponent,
   PropType as VuePropType,
-  ComponentPublicInstance
-} from "vue";
-import type { ECharts } from "echarts";
-import type { IconifyIcon } from "@iconify/vue";
-import type { TableColumns } from "@pureadmin/table";
+} from 'vue'
 
-/**
- * 全局类型声明，无需引入直接在 `.vue` 、`.ts` 、`.tsx` 文件使用即可获得类型提示
- */
 declare global {
-  /**
-   * 平台的名称、版本、依赖、最后构建时间的类型提示
-   */
   const __APP_INFO__: {
     pkg: {
-      name: string;
-      version: string;
-      dependencies: Recordable<string>;
-      devDependencies: Recordable<string>;
-    };
-    lastBuildTime: string;
-  };
+      name: string
+      version: string
+      dependencies: Recordable<string>
+      devDependencies: Recordable<string>
+    }
+    lastBuildTime: string
+  }
+  // declare interface Window {
+  //   // Global vue app instance
+  //   __APP__: App<Element>;
+  // }
 
-  /**
-   * Window 的类型提示
-   */
-  interface Window {
-    // Global vue app instance
-    __APP__: App<Element>;
-    webkitCancelAnimationFrame: (handle: number) => void;
-    mozCancelAnimationFrame: (handle: number) => void;
-    oCancelAnimationFrame: (handle: number) => void;
-    msCancelAnimationFrame: (handle: number) => void;
-    webkitRequestAnimationFrame: (callback: FrameRequestCallback) => number;
-    mozRequestAnimationFrame: (callback: FrameRequestCallback) => number;
-    oRequestAnimationFrame: (callback: FrameRequestCallback) => number;
-    msRequestAnimationFrame: (callback: FrameRequestCallback) => number;
+  // vue
+  declare type PropType<T> = VuePropType<T>
+  declare type VueNode = VNodeChild | JSX.Element
+
+  export type Writable<T> = {
+    -readonly [P in keyof T]: T[P]
   }
 
-  /**
-   * 打包压缩格式的类型声明
-   */
-  type ViteCompression =
-    | "none"
-    | "gzip"
-    | "brotli"
-    | "both"
-    | "gzip-clear"
-    | "brotli-clear"
-    | "both-clear";
+  declare type Nullable<T> = T | null
+  declare type NonNullable<T> = T extends null | undefined ? never : T
+  declare type Recordable<T = any> = Record<string, T>
+  declare type ReadonlyRecordable<T = any> = {
+    readonly [key: string]: T
+  }
+  declare type Indexable<T = any> = {
+    [key: string]: T
+  }
+  declare type DeepPartial<T> = {
+    [P in keyof T]?: DeepPartial<T[P]>
+  }
+  declare type TimeoutHandle = ReturnType<typeof setTimeout>
+  declare type IntervalHandle = ReturnType<typeof setInterval>
 
-  /**
-   * 全局自定义环境变量的类型声明
-   * @see {@link https://yiming_chang.gitee.io/pure-admin-doc/pages/config/#%E5%85%B7%E4%BD%93%E9%85%8D%E7%BD%AE}
-   */
-  interface ViteEnv {
-    VITE_PORT: number;
-    VITE_PUBLIC_PATH: string;
-    VITE_ROUTER_HISTORY: string;
-    VITE_CDN: boolean;
-    VITE_HIDE_HOME: string;
-    VITE_COMPRESSION: ViteCompression;
+  declare interface ChangeEvent extends Event {
+    target: HTMLInputElement
   }
 
-  /**
-   *  继承 `@pureadmin/table` 的 `TableColumns` ，方便全局直接调用
-   */
-  interface TableColumnList extends Array<TableColumns> {}
-
-  /**
-   * 对应 `public/serverConfig.json` 文件的类型声明
-   * @see {@link https://yiming_chang.gitee.io/pure-admin-doc/pages/config/#serverconfig-json}
-   */
-  interface ServerConfigs {
-    Version?: string;
-    Title?: string;
-    FixedHeader?: boolean;
-    HiddenSideBar?: boolean;
-    MultiTagsCache?: boolean;
-    KeepAlive?: boolean;
-    Locale?: string;
-    Layout?: string;
-    Theme?: string;
-    DarkMode?: boolean;
-    Grey?: boolean;
-    Weak?: boolean;
-    HideTabs?: boolean;
-    SidebarStatus?: boolean;
-    EpThemeColor?: string;
-    ShowLogo?: boolean;
-    ShowModel?: string;
-    MenuArrowIconNoTransition?: boolean;
-    CachingAsyncRoutes?: boolean;
-    TooltipEffect?: Effect;
-    ResponsiveStorageNameSpace?: string;
+  declare interface WheelEvent {
+    path?: EventTarget[]
+  }
+  interface ImportMetaEnv extends ViteEnv {
+    __: unknown
   }
 
-  /**
-   * 与 `ServerConfigs` 类型不同，这里是缓存到浏览器本地存储的类型声明
-   * @see {@link https://yiming_chang.gitee.io/pure-admin-doc/pages/config/#serverconfig-json}
-   */
-  interface StorageConfigs {
-    version?: string;
-    title?: string;
-    fixedHeader?: boolean;
-    hiddenSideBar?: boolean;
-    multiTagsCache?: boolean;
-    keepAlive?: boolean;
-    locale?: string;
-    layout?: string;
-    theme?: string;
-    darkMode?: boolean;
-    grey?: boolean;
-    weak?: boolean;
-    hideTabs?: boolean;
-    sidebarStatus?: boolean;
-    epThemeColor?: string;
-    showLogo?: boolean;
-    showModel?: string;
-    username?: string;
+  declare interface ViteEnv {
+    VITE_PORT: number
+    VITE_USE_MOCK: boolean
+    VITE_USE_PWA: boolean
+    VITE_PUBLIC_PATH: string
+    VITE_PROXY: [string, string][]
+    VITE_GLOB_APP_TITLE: string
+    VITE_GLOB_APP_SHORT_NAME: string
+    VITE_USE_CDN: boolean
+    VITE_DROP_CONSOLE: boolean
+    VITE_BUILD_COMPRESS: 'gzip' | 'brotli' | 'none'
+    VITE_BUILD_COMPRESS_DELETE_ORIGIN_FILE: boolean
+    VITE_LEGACY: boolean
+    VITE_USE_IMAGEMIN: boolean
+    VITE_GENERATE_UI: string
   }
 
-  /**
-   * `responsive-storage` 本地响应式 `storage` 的类型声明
-   */
-  interface ResponsiveStorage {
-    locale: {
-      locale?: string;
-    };
-    layout: {
-      layout?: string;
-      theme?: string;
-      darkMode?: boolean;
-      sidebarStatus?: boolean;
-      epThemeColor?: string;
-    };
-    configure: {
-      grey?: boolean;
-      weak?: boolean;
-      hideTabs?: boolean;
-      showLogo?: boolean;
-      showModel?: string;
-      multiTagsCache?: boolean;
-    };
-    tags?: Array<any>;
-  }
+  declare function parseInt(s: string | number, radix?: number): number
 
-  /**
-   * 平台里所有组件实例都能访问到的全局属性对象的类型声明
-   */
-  interface GlobalPropertiesApi {
-    $echarts: ECharts;
-    $storage: ResponsiveStorage;
-    $config: ServerConfigs;
+  declare function parseFloat(string: string | number): number
+
+  namespace JSX {
+    // tslint:disable no-empty-interface
+    type Element = VNode
+    // tslint:disable no-empty-interface
+    type ElementClass = ComponentRenderProxy
+    interface ElementAttributesProperty {
+      $props: any
+    }
+    interface IntrinsicElements {
+      [elem: string]: any
+    }
+    interface IntrinsicAttributes {
+      [elem: string]: any
+    }
   }
+}
+
+declare module 'vue' {
+  export type JSXComponent<Props = any> =
+    | { new (): ComponentPublicInstance<Props> }
+    | FunctionalComponent<Props>
 }
